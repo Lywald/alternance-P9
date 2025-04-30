@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}LITReview{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/feed.css' %}">
+</head>
+<body>
+    <header>
+        <h1><a href="{% url 'home' %}" style="color: #fff; text-decoration: none;">LITReview</a></h1>
+        {% if user.is_authenticated or request.path != '/' %}
+        <nav>
+            <ul>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'feed' %}">Flux</a></li>
+                    <li><a href="#">Posts</a></li>
+                    <li><a href="#">Abonnements</a></li>
+                    <li><a href="{% url 'logout' %}">Se déconnecter</a></li>
+                    <li><span>Bonjour, {{ user.username }}</span></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}">Se connecter</a></li>
+                    <li><a href="{% url 'signup' %}">S'inscrire</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </header>
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+    <footer>
+        <!-- Footer content here -->
+    </footer>
+    <!-- Link to global JS files here -->
+</body>
+</html>

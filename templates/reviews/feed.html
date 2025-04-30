@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Flux - LITReview{% endblock %}
+
+{% block content %}
+<div class="feed-container">
+    <h2>Flux</h2>
+    
+    <div class="feed-actions">
+        <a href="#" class="button action-button">Demander une critique</a>
+        <a href="#" class="button action-button">Créer une critique</a>
+    </div>
+    
+    <div class="feed-items">
+        {% for item in feed %}
+            <div class="feed-item {% if item.content_type == 'REVIEW' %}review-item{% else %}ticket-item{% endif %}">
+                <!-- En-tête de l'item (commun aux tickets et reviews) -->
+                <div class="feed-item-header">
+                    {% if item.content_type == 'REVIEW' %}
+                        {% if item.user == request.user %}
+                            <span class="feed-item-user">Vous avez publié une critique</span>
+                        {% else %}
+                            <span class="feed-item-user">{{ item.user.username }} a publié une critique</span>
+                        {% endif %}
+                    {% else %}
+                        {% if item.user == request.user %}
+                            <span class="feed-item-user">Vous avez demandé une critique</span>
+                        {% else %}
+                            <span class="feed-item-user">{{ item.user.username }} a demandé une critique</span>
+                        {% endif %}
+                    {% endif %}
+                    <span class="feed-item-date">{{ item.time_created|date:"H:i, d F Y" }}</span>
+                </div>
+                
+                <!-- Contenu spécifique aux reviews -->
+                {% if item.content_type == 'REVIEW' %}
+                    <h3 class="review-title">{{ item.headline }} - 
+                        <span class="review-rating">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= item.rating %}
+                                    ★
+                                {% else %}
+                                    ☆
+                                {% endif %}
+                            {% endfor %}
+                        </span>
+                    </h3>
+                    <p class="review-body">{{ item.body }}</p>
+                    
+                    <!-- Ticket lié à la review -->
+                    <div class="related-ticket">
+                        <p class="ticket-info">Ticket - {{ item.ticket.user.username }}</p>
+                        <h4 class="ticket-title">{{ item.ticket.title }}</h4>
+                        {% if item.ticket.image %}
+                            <img src="{{ item.ticket.image.url }}" alt="{{ item.ticket.title }}" class="ticket-image">
+                        {% endif %}
+                    </div>
+                
+                <!-- Contenu spécifique aux tickets -->
+                {% else %}
+                    <h3 class="ticket-title">{{ item.title }}</h3>
+                    {% if item.description %}
+                        <p class="ticket-description">{{ item.description }}</p>
+                    {% endif %}
+                    
+                    {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="{{ item.title }}" class="ticket-image">
+                    {% endif %}
+                    
+                    <!-- Vérifier si l'utilisateur a déjà posté une critique pour ce ticket -->
+                    {% if item.reviews.exists %}
+                        <div class="ticket-has-reviews">
+                            <p>Ce ticket a déjà reçu une critique</p>
+                        </div>
+                    {% else %}
+                        <div class="ticket-actions">
+                            <a href="#" class="button review-button">Créer une critique</a>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        {% empty %}
+            <div class="empty-feed">
+                <p>Aucune activité à afficher pour le moment.</p>
+                <p>Commencez par suivre d'autres utilisateurs ou créer vos propres tickets !</p>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <div class="feed-tooltip">
+        <p>Bloquer les critiques aux tickets si un utilisateur a déjà posté une critique en réponse.</p>
+    </div>
+</div>
+{% endblock %} 
